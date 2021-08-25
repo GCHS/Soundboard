@@ -8,13 +8,13 @@ using System.Windows.Media;
 namespace Soundboard__ {
 	internal class Sting {
 		[JsonInclude]
-		public readonly Key Keycode;
+		public Key Keycode;
 		[JsonInclude]
-		public readonly Metakey Metakeys;
+		public Metakey Metakeys;
 		[JsonInclude]
 		public readonly Uri Source;
 		[JsonInclude]
-		public readonly RetriggerMode RetriggerMode;
+		public RetriggerMode RetriggerMode;
 
 		//Keycode and Metakeys are stored separately to make serialization easier to write
 
@@ -53,11 +53,7 @@ namespace Soundboard__ {
 						foreach(var s in NowPlaying) s.Position = new();
 						break;
 					case RetriggerMode.Stop:
-						foreach(var s in NowPlaying) {
-							s.Stop();
-							Pool.Add(s);
-						}
-						NowPlaying.Clear();
+						Stop();
 						break;
 					default:
 						break;
@@ -65,6 +61,13 @@ namespace Soundboard__ {
 			} else {
 				StartNewSound();
 			}
+		}
+		public void Stop() {
+			foreach(var s in NowPlaying) {
+				s.Stop();
+				Pool.Add(s);
+			}
+			NowPlaying.Clear();
 		}
 
 		private void StartNewSound() {
