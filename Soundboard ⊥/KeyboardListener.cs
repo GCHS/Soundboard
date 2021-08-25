@@ -82,14 +82,15 @@ namespace Soundboard__ {
 			string chars = "";
 
 			if(nCode >= 0)
-				if(wParam.ToUInt32() == (int)InterceptKeys.KeyEvent.WM_KEYDOWN ||
-						wParam.ToUInt32() == (int)InterceptKeys.KeyEvent.WM_KEYUP ||
-						wParam.ToUInt32() == (int)InterceptKeys.KeyEvent.WM_SYSKEYDOWN ||
-						wParam.ToUInt32() == (int)InterceptKeys.KeyEvent.WM_SYSKEYUP) {
+				if(wParam.ToUInt32() is
+						((int)InterceptKeys.KeyEvent.WM_KEYDOWN)    or
+						((int)InterceptKeys.KeyEvent.WM_KEYUP)      or
+						((int)InterceptKeys.KeyEvent.WM_SYSKEYDOWN) or
+						((int)InterceptKeys.KeyEvent.WM_SYSKEYUP)) {
 					// Captures the character(s) pressed only on WM_KEYDOWN
 					chars = InterceptKeys.VKCodeToString((uint)Marshal.ReadInt32(lParam),
-							(wParam.ToUInt32() == (int)InterceptKeys.KeyEvent.WM_KEYDOWN ||
-							wParam.ToUInt32() == (int)InterceptKeys.KeyEvent.WM_SYSKEYDOWN));
+							wParam.ToUInt32() is ((int)InterceptKeys.KeyEvent.WM_KEYDOWN) or
+							((int)InterceptKeys.KeyEvent.WM_SYSKEYDOWN));
 
 					Task.Run(() => hookedKeyboardCallbackAsync((InterceptKeys.KeyEvent)wParam.ToUInt32(), Marshal.ReadInt32(lParam), chars));
 
@@ -244,10 +245,8 @@ namespace Soundboard__ {
 		}
 
 		public static IntPtr SetHook(LowLevelKeyboardProc proc) {
-			using(Process curProcess = Process.GetCurrentProcess())
-			using(ProcessModule curModule = curProcess.MainModule) {
-				return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
-			}
+			using Process curProcess = Process.GetCurrentProcess();
+			using ProcessModule curModule = curProcess.MainModule; return SetWindowsHookEx(WH_KEYBOARD_LL, proc, GetModuleHandle(curModule.ModuleName), 0);
 		}
 
 		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -306,7 +305,7 @@ namespace Soundboard__ {
 		/// <returns>String representing single unicode character.</returns>
 		public static string VKCodeToString(uint VKCode, bool isKeyDown) {
 			// ToUnicodeEx needs StringBuilder, it populates that during execution.
-			System.Text.StringBuilder sbString = new System.Text.StringBuilder(5);
+			StringBuilder sbString = new(5);
 
 			byte[] bKeyState = new byte[255];
 			bool bKeyStateStatus;
