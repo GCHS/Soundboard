@@ -11,5 +11,8 @@
     <Setting Name="SettingsMigrationRequired" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="StopAll" Type="System.String" Scope="User">
+      <Value Profile="(Default)">{"Key":"S","Metakeys":"Ctrl,Alt"}</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -8,7 +8,7 @@ using System.Windows.Media;
 namespace Soundboard__ {
 	internal class Sting {
 		[JsonInclude]
-		public Key Keycode;
+		public Key Key;
 		[JsonInclude]
 		public Metakey Metakeys;
 		[JsonInclude]
@@ -25,12 +25,12 @@ namespace Soundboard__ {
 		[JsonIgnore]
 		public bool IsPlaying => NowPlaying.Any();
 		[JsonIgnore]
-		public int Code => (int)Metakeys | (int)Keycode; //keycode and metakeys combined
+		public int Code => (int)Metakeys | (int)Key; //keycode and metakeys combined
 
 		[JsonConstructor]
-		public Sting(Metakey Metakeys, Key Keycode, RetriggerMode RetriggerMode, Uri Source) {
+		public Sting(Metakey Metakeys, Key Key, RetriggerMode RetriggerMode, Uri Source) {
 			this.Metakeys = Metakeys;
-			this.Keycode = Keycode;
+			this.Key = Key;
 			this.RetriggerMode = RetriggerMode;
 			this.Source = Source;
 		}

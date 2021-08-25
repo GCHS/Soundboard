@@ -58,5 +58,17 @@ namespace Soundboard__ {
                 this["SettingsMigrationRequired"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{\"Key\":\"S\",\"Metakeys\":\"Ctrl,Alt\"}")]
+        public string StopAll {
+            get {
+                return ((string)(this["StopAll"]));
+            }
+            set {
+                this["StopAll"] = value;
+            }
+        }
     }
 }

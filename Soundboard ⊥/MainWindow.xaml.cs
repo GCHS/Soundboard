@@ -33,15 +33,21 @@ namespace Soundboard__ {
 			{Key.RWin, Metakey.Meta}
 		};
 		private struct Keybind {
-			public Metakey Metakey; public Key Key;
-			public Keybind(Metakey metakey, Key key) {
-				Metakey = metakey;
-				Key = key;
+			[JsonInclude]
+			public Metakey Metakeys;
+			[JsonInclude]
+			public Key Key;
+			public Keybind(Metakey Metakeys, Key Key) {
+				this.Metakeys = Metakeys;
+				this.Key = Key;
 			}
-			public int Code => (int)Metakey | (int)Key;
+			[JsonIgnore]
+			public int Code => (int)Metakeys | (int)Key;
 		}
 		private Metakey CurrentlyPressed;
 		private readonly Dictionary<int, Sting> Stings = new();
+
+		Keybind StopAll = new(Metakey.Ctrl | Metakey.Alt, Key.S);
 
 		private bool ListeningForNextKeycombo;
 		public MainWindow() {
@@ -64,11 +70,15 @@ namespace Soundboard__ {
 						var keycombo = stingInput.Children[0] as TextBox;
 						var retriggerMode = stingInput.Children[1] as ComboBox;
 						var source = stingInput.Children[2] as TextBox;
-						keycombo.Text = $"{s.Metakeys} + {s.Keycode}";
-						keycombo.Tag = new Keybind(s.Metakeys, s.Keycode);
+						keycombo.Text = $"{s.Metakeys} + {s.Key}";
+						keycombo.Tag = new Keybind(s.Metakeys, s.Key);
 						retriggerMode.SelectedItem = s.RetriggerMode;
 						source.Text = s.Source.ToString();
 					}
+				}
+				var potentialStopAllBinding = JsonSerializer.Deserialize(Settings.Default.StopAll, typeof(Keybind), options) as Keybind?;
+				if(potentialStopAllBinding is not null) {
+					StopAll = potentialStopAllBinding.Value;
 				}
 			} catch(Exception e) {
 				Title = e.Message;
@@ -80,13 +90,16 @@ namespace Soundboard__ {
 			JsonSerializerOptions options = new() { WriteIndented = true };
 			options.Converters.Add(new JsonStringEnumConverter());
 			Settings.Default.Stings = JsonSerializer.Serialize(Stings.Values, options);
+			Settings.Default.StopAll = JsonSerializer.Serialize(StopAll, options);
 			Settings.Default.Save();
 		}
 
 
-		internal void KbListenerKeyDown(object s, RawKeyEventArgs e) {
+		internal void KbListenerKeyDown(object sender, RawKeyEventArgs e) {
 			if(MetaMapping.TryGetValue(e.Key, out var metakey)) {
 				CurrentlyPressed |= metakey;
+			} else if(StopAll.Metakeys == CurrentlyPressed && StopAll.Key == e.Key) {
+				foreach(var s in Stings.Values) s.Stop();
 			} else if(Stings.TryGetValue((int)CurrentlyPressed | (int)e.Key, out var sting)) {
 				sting.Play();
 			} else if(ListeningForNextKeycombo) {
@@ -97,7 +110,7 @@ namespace Soundboard__ {
 				keycombo.Tag = newBind;
 				if(oldBind is not null && Stings.TryGetValue(oldBind.Value.Code, out var updateSting)) {
 					Stings.Remove(oldBind.Value.Code);
-					(updateSting.Metakeys, updateSting.Keycode) = (newBind.Metakey, newBind.Key);
+					(updateSting.Metakeys, updateSting.Key) = (newBind.Metakeys, newBind.Key);
 					Stings[newBind.Code] = updateSting;
 					Title = "Keybind Updated";
 				} else {
@@ -209,7 +222,7 @@ namespace Soundboard__ {
 					ret = SourceChangeStingEffect.Add;
 					Title = "Sting Added";
 				}
-				Sting s = new(bind.Value.Metakey, bind.Value.Key, retriggerMode, new Uri(source.Text));
+				Sting s = new(bind.Value.Metakeys, bind.Value.Key, retriggerMode, new Uri(source.Text));
 				Stings[s.Code] = s;
 				return ret;
 			}
