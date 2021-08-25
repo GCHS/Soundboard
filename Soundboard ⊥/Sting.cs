@@ -12,9 +12,9 @@ namespace Soundboard__ {
 		[JsonInclude]
 		public readonly Metakey Metakeys;
 		[JsonInclude]
-		public readonly Uri Sound;
+		public readonly Uri Source;
 		[JsonInclude]
-		public readonly RetriggerMode retriggerMode;
+		public readonly RetriggerMode RetriggerMode;
 
 		//Keycode and Metakeys are stored separately to make serialization easier to write
 
@@ -28,11 +28,11 @@ namespace Soundboard__ {
 		public int Code => (int)Metakeys | (int)Keycode; //keycode and metakeys combined
 
 		[JsonConstructor]
-		public Sting(Metakey metakeys, Key keycode, RetriggerMode mode, Uri sound) {
-			Metakeys = metakeys;
-			Keycode = keycode;
-			Sound = sound;
-			retriggerMode = mode;
+		public Sting(Metakey Metakeys, Key Keycode, RetriggerMode RetriggerMode, Uri Source) {
+			this.Metakeys = Metakeys;
+			this.Keycode = Keycode;
+			this.RetriggerMode = RetriggerMode;
+			this.Source = Source;
 		}
 		private void Sound_MediaFailed(object sender, ExceptionEventArgs e) {
 			NowPlaying.Remove(sender as MediaPlayer);
@@ -45,7 +45,7 @@ namespace Soundboard__ {
 
 		public void Play() {
 			if(IsPlaying) {
-				switch(retriggerMode) {
+				switch(RetriggerMode) {
 					case RetriggerMode.Overlap:
 						StartNewSound();
 						break;
@@ -76,7 +76,7 @@ namespace Soundboard__ {
 				NowPlaying.Add(s);
 			} else {
 				MediaPlayer s = new();
-				s.Open(Sound);
+				s.Open(Source);
 				s.MediaEnded += Sound_MediaEnded;
 				s.MediaFailed += Sound_MediaFailed;
 				s.Play();

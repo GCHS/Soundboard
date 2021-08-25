@@ -1,14 +1,14 @@
 ﻿<Window x:Class="Soundboard__.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Soundboard__"
+				xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+				xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+				xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+				xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+				xmlns:local="clr-namespace:Soundboard__"
 				
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800"
-				Closing="Window_Closing">
-    <Grid>
-
-    </Grid>
+				mc:Ignorable="d"
+				Title="Pink Gay Soundboard" Height="450" Width="800"
+				Closing="Window_Closing" Foreground="White" Background="#FFB90B7A">
+	<Grid>
+		<StackPanel x:Name="StingInputs"/>
+	</Grid>
 </Window>
