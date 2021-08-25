@@ -84,6 +84,8 @@ namespace Soundboard__ {
 				Title = e.Message;
 			}
 
+			StopAllSound.Content = $"Click Here To Stop All Sound, Or Press {StopAll.Metakeys} + {StopAll.Key}";
+
 			AddNewStingInput();
 		}
 		private void Window_Closing(object sender, CancelEventArgs e) {
@@ -180,20 +182,20 @@ namespace Soundboard__ {
 			grid.ColumnDefinitions.Add(new());
 			grid.ColumnDefinitions.Add(new() { Width = new(18) });
 
-			TextBox keycombo = new() { Background = new SolidColorBrush(), Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255)), IsReadOnly = true, Text = "Click to set keybinding..." };
+			TextBox keycombo = new() { Background = new SolidColorBrush(), Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255)), IsReadOnly = true, Text = "Click to set keybinding...", BorderBrush = new SolidColorBrush(Color.FromRgb(255, 0, 209)) };
 			keycombo.SetValue(Grid.ColumnProperty, 0);
 			keycombo.GotFocus += Keycombo_GotFocus;
 
-			ComboBox retriggerMode = new() { Foreground = new SolidColorBrush(Color.FromRgb(185, 11, 182)), Padding = new(0), ItemsSource = new[] { RetriggerMode.Overlap, RetriggerMode.Restart, RetriggerMode.Stop }, SelectedItem = RetriggerMode.Stop };
+			ComboBox retriggerMode = new() { Foreground = new SolidColorBrush(Color.FromRgb(185, 11, 182)), Padding = new(0), ItemsSource = new[] { RetriggerMode.Overlap, RetriggerMode.Restart, RetriggerMode.Stop }, SelectedItem = RetriggerMode.Stop, BorderBrush = new SolidColorBrush(Color.FromRgb(255, 0, 209)) };
 			retriggerMode.SetValue(Grid.ColumnProperty, 1);
 			retriggerMode.KeyDown += RetriggerMode_KeyDown;
 			retriggerMode.SelectionChanged += RetriggerMode_SelectionChanged;
 
-			TextBox source = new() { Background = new SolidColorBrush(), Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255)) }; ;
+			TextBox source = new() { Background = new SolidColorBrush(), Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255)), BorderBrush = new SolidColorBrush(Color.FromRgb(255, 0, 209)) }; ;
 			source.SetValue(Grid.ColumnProperty, 2);
 			source.KeyDown += Source_KeyDown;
 
-			Button openOfd = new() { Background = new SolidColorBrush(), Padding = new(0) };
+			Button openOfd = new() { Background = new SolidColorBrush(), Padding = new(0), BorderBrush = new SolidColorBrush(Color.FromRgb(255, 0, 209)) };
 			openOfd.SetValue(Grid.ColumnProperty, 3);
 			openOfd.Content = new Image() { Source = new BitmapImage(new Uri("/Images/explorer.ico", UriKind.Relative)), Width = 16, Height = 16 };
 			openOfd.Click += OpenOfd_Click;
@@ -233,5 +235,8 @@ namespace Soundboard__ {
 		private ComboBox MatchingRetriggerMode(FrameworkElement e) => (e.Parent as Grid).Children[1] as ComboBox;
 		private TextBox MatchingSource(FrameworkElement e) => (e.Parent as Grid).Children[2] as TextBox;
 
+		private void StopAllSound_Click(object sender, RoutedEventArgs e) {
+			foreach(var s in Stings.Values) s.Stop();
+		}
 	}
 }

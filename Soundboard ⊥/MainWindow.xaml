@@ -9,6 +9,11 @@
 				Title="Pink Gay Soundboard" Height="450" Width="800"
 				Closing="Window_Closing" Foreground="White" Background="#FFB90B7A">
 	<Grid>
-		<StackPanel x:Name="StingInputs"/>
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition Height="24"/>
+		</Grid.RowDefinitions>
+		<StackPanel x:Name="StingInputs" Grid.Row="0"/>
+		<Button x:Name="StopAllSound" Grid.Row="1" Content="Click Here To Stop All Sound" Foreground="White" Background="Transparent" BorderBrush="#FFFF00D1" FontWeight="Normal" FontSize="16" Padding="0" BorderThickness="2" Click="StopAllSound_Click"/>
 	</Grid>
 </Window>
