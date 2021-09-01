@@ -22,22 +22,19 @@ namespace Soundboard__ {
 	/// Interaction logic for MainWindow.xaml
 	/// </summary>
 	public partial class MainWindow : Window {
-		private readonly Dictionary<Key, Metakey> MetaMapping = new(){
-			{Key.LeftShift, Metakey.Shift},
-			{Key.RightShift, Metakey.Shift},
-			{Key.LeftAlt, Metakey.Alt},
-			{Key.RightAlt, Metakey.Alt},
-			{Key.LeftCtrl, Metakey.Ctrl},
-			{Key.RightCtrl, Metakey.Ctrl},
-			{Key.LWin, Metakey.Meta},
-			{Key.RWin, Metakey.Meta}
+		private readonly Dictionary<ConsoleKey, Metakey> MetaMapping = new(){
+			{(ConsoleKey)0x10, Metakey.Shift}, //https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+			{(ConsoleKey)0x11, Metakey.Ctrl},
+			{(ConsoleKey)0x12, Metakey.Alt},
+			{ConsoleKey.LeftWindows, Metakey.Meta},
+			{ConsoleKey.RightWindows, Metakey.Meta}
 		};
 		private struct Keybind {
 			[JsonInclude]
 			public Metakey Metakeys;
 			[JsonInclude]
-			public Key Key;
-			public Keybind(Metakey Metakeys, Key Key) {
+			public ConsoleKey Key;
+			public Keybind(Metakey Metakeys, ConsoleKey Key) {
 				this.Metakeys = Metakeys;
 				this.Key = Key;
 			}
@@ -47,9 +44,11 @@ namespace Soundboard__ {
 		private Metakey CurrentlyPressed;
 		private readonly Dictionary<int, Sting> Stings = new();
 
-		Keybind StopAll = new(Metakey.Ctrl | Metakey.Alt, Key.S);
+		Keybind StopAll = new(Metakey.Ctrl | Metakey.Alt, ConsoleKey.S);
 
 		private bool ListeningForNextKeycombo;
+
+		private RawInputHandler RawInputHandler;
 		public MainWindow() {
 			InitializeComponent();
 
@@ -88,7 +87,9 @@ namespace Soundboard__ {
 
 			AddNewStingInput();
 		}
+
 		private void Window_Closing(object sender, CancelEventArgs e) {
+			RawInputHandler.Dispose();
 			JsonSerializerOptions options = new() { WriteIndented = true };
 			options.Converters.Add(new JsonStringEnumConverter());
 			Settings.Default.Stings = JsonSerializer.Serialize(Stings.Values, options);
@@ -96,19 +97,18 @@ namespace Soundboard__ {
 			Settings.Default.Save();
 		}
 
-
-		internal void KbListenerKeyDown(object sender, RawKeyEventArgs e) {
-			if(MetaMapping.TryGetValue(e.Key, out var metakey)) {
+		internal void RawInputHandler_KeyboardDown(ConsoleKey key) {
+			if(MetaMapping.TryGetValue(key, out var metakey)) {
 				CurrentlyPressed |= metakey;
-			} else if(StopAll.Metakeys == CurrentlyPressed && StopAll.Key == e.Key) {
+			} else if(StopAll.Metakeys == CurrentlyPressed && StopAll.Key == key) {
 				foreach(var s in Stings.Values) s.Stop();
-			} else if(Stings.TryGetValue((int)CurrentlyPressed | (int)e.Key, out var sting)) {
+			} else if(Stings.TryGetValue((int)CurrentlyPressed | (int)key, out var sting)) {
 				sting.Play();
 			} else if(ListeningForNextKeycombo) {
 				var keycombo = FocusManager.GetFocusedElement(this) as TextBox;
-				keycombo.Text = $"{CurrentlyPressed} + {e.Key}";
+				keycombo.Text = $"{CurrentlyPressed} + {key}";
 				var oldBind = keycombo.Tag as Keybind?;
-				var newBind = new Keybind(CurrentlyPressed, e.Key);
+				var newBind = new Keybind(CurrentlyPressed, key);
 				keycombo.Tag = newBind;
 				if(oldBind is not null && Stings.TryGetValue(oldBind.Value.Code, out var updateSting)) {
 					Stings.Remove(oldBind.Value.Code);
@@ -125,8 +125,8 @@ namespace Soundboard__ {
 			}
 		}
 
-		internal void KbListenerKeyUp(object s, RawKeyEventArgs e) {
-			if(MetaMapping.TryGetValue(e.Key, out var metakey)) {
+		internal void RawInputHandler_KeyboardUp(ConsoleKey key) {
+			if(MetaMapping.TryGetValue(key, out var metakey)) {
 				CurrentlyPressed &= ~metakey;
 			}
 		}
@@ -200,7 +200,7 @@ namespace Soundboard__ {
 			openOfd.Content = new Image() { Source = new BitmapImage(new Uri("/Images/explorer.ico", UriKind.Relative)), Width = 16, Height = 16 };
 			openOfd.Click += OpenOfd_Click;
 
-			keycombo.Tag = new Keybind(Metakey.None, Key.None);
+			keycombo.Tag = new Keybind(Metakey.None, (ConsoleKey)0x0);
 
 			grid.Children.Add(keycombo);
 			grid.Children.Add(retriggerMode);
@@ -237,6 +237,12 @@ namespace Soundboard__ {
 
 		private void StopAllSound_Click(object sender, RoutedEventArgs e) {
 			foreach(var s in Stings.Values) s.Stop();
+		}
+
+		private void Window_Loaded(object sender, RoutedEventArgs e) {
+			RawInputHandler = new(this);
+			RawInputHandler.KeyboardDown += RawInputHandler_KeyboardDown;
+			RawInputHandler.KeyboardUp += RawInputHandler_KeyboardUp;
 		}
 	}
 }
