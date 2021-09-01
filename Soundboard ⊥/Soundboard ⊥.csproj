@@ -5,7 +5,9 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <RootNamespace>Soundboard__</RootNamespace>
     <UseWPF>true</UseWPF>
-  </PropertyGroup>
+    <Nullable>enable</Nullable>
+		<IncludePackageReferencesDuringMarkupCompilation>true</IncludePackageReferencesDuringMarkupCompilation>
+	</PropertyGroup>
 
   <ItemGroup>
     <None Remove="Images\explorer.ico" />
@@ -13,6 +15,13 @@
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.1.506-beta">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
